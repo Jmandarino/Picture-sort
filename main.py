@@ -38,7 +38,7 @@ def create_folder_and_move(output_directory, current_directory, filename):
 
 if __name__ == '__main__':
     # constants
-    FILES_TO_MOVE = ['.arw', '.jpg']
+    FILES_TO_MOVE = ['.arw',]# '.jpg']
     FOLDER_EXCEPTIONS = ['edited', 'output', '.idea', 'venv', 'export', ]
     CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
     OUTPUT_FOLDER = os.path.join(CURRENT_DIR, 'output')
@@ -63,14 +63,14 @@ if __name__ == '__main__':
             print('Can\'t create directory in path: {}'.format(OUTPUT_FOLDER))
 
     # process current directory
-    for file in files:
+    for item in files:
         # add file to queue
-        if os.path.isdir(file) and file not in FOLDER_EXCEPTIONS:
-            folder_queue.put((file, os.path.realpath(file)))
+        if os.path.isdir(os.path.realpath(os.path.join(CURRENT_DIR, item))) and item not in FOLDER_EXCEPTIONS:
+            folder_queue.put((item, os.path.abspath(os.path.join(CURRENT_DIR, item))))
         # process file and move it
-        ext = os.path.splitext(file)[-1].lower()
+        ext = os.path.splitext(item)[-1].lower()
         if ext in FILES_TO_MOVE:
-            create_folder_and_move(OUTPUT_FOLDER, CURRENT_DIR, file)
+            create_folder_and_move(OUTPUT_FOLDER, CURRENT_DIR, item)
 
     # BFS traversal
     visited_folders = {}  # keep track of folders that have been processed
@@ -81,15 +81,15 @@ if __name__ == '__main__':
 
         files = os.listdir(folder_tup[1])
         # process files in directory we popped of the queue
-        for file in files:
-            if file == folder_tup[1]:
+        for item in files:
+            if item == folder_tup[1]:
                 continue
             file_path = os.path.realpath(folder_tup[1])  # the parent directory of 'file'
             # if the file is a dir and we haven't visited it yet add it to the queue
-            if os.path.isdir(os.path.join(file_path, file)) and file.lower() not in FOLDER_EXCEPTIONS and \
-                    visited_folders.get(os.path.join(file_path, file), None) is None:
-                folder_queue.put((file, os.path.join(file_path, file)))
+            if os.path.isdir(os.path.join(file_path, item)) and item.lower() not in FOLDER_EXCEPTIONS and \
+                    visited_folders.get(os.path.join(file_path, item), None) is None:
+                folder_queue.put((item, os.path.join(file_path, item)))
                 continue
-            ext = os.path.splitext(file)[-1].lower()
+            ext = os.path.splitext(item)[-1].lower()
             if ext in FILES_TO_MOVE:
-                create_folder_and_move(OUTPUT_FOLDER, file_path, file)
+                create_folder_and_move(OUTPUT_FOLDER, file_path, item)
