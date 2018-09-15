@@ -2,3 +2,4 @@
 output\
 Eclipse\
 venv\*
+venv*
